@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Skylark by quantarray</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="javascripts/main.js"></script>
     <!--[if lt IE 9]>
@@ -43,6 +43,37 @@
 <a id="skylark" class="anchor" href="#skylark" aria-hidden="true"><span class="octicon octicon-link"></span></a>Skylark</h1>
 
 <p>Skylark is a set of libraries for quantitative and financial computation.</p>
+
+<h2>
+<a id="slylark-learning-neural" class="anchor" href="#slylark-learning-neural" aria-hidden="true"><span class="octicon octicon-link"></span></a>slylark-learning-neural</h2>
+
+<p><strong>skylark-learning-neural</strong> is a library for training, testing, and using neural networks.</p>
+
+<p>The example below shows how to train and test a feed-forward network using a backpropagation trainer on <a href="http://yann.lecun.com/exdb/mnist">MNIST database of handwritten digits</a>.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-c">// Load training and test data</span>
+<span class="pl-k">val</span> <span class="pl-en">trainingDataProvider</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">MnistDataProvider</span>(<span class="pl-s"><span class="pl-pds">"</span>data/mnist/train-images-idx3-ubyte<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>data/mnist/train-labels-idx1-ubyte<span class="pl-pds">"</span></span>)
+
+<span class="pl-k">val</span> <span class="pl-en">testDataProvider</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">MnistDataProvider</span>(<span class="pl-s"><span class="pl-pds">"</span>data/mnist/t10k-images-idx3-ubyte<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>data/mnist/t10k-labels-idx1-ubyte<span class="pl-pds">"</span></span>)
+
+<span class="pl-k">val</span> <span class="pl-en">testSetIsFit</span> <span class="pl-k">=</span> (testDataProvider.read.set, <span class="pl-en">MnistSupervisedDataSample</span>.isFit _)
+
+<span class="pl-c">// Number of nodes in the hidden layer ≈ √ (784 * 10)</span>
+<span class="pl-k">val</span> <span class="pl-en">net</span> <span class="pl-k">=</span> <span class="pl-en">FullyConnectedNet</span>(<span class="pl-en">GaussianWeightAssignment</span>, <span class="pl-en">SigmoidActivation</span>, <span class="pl-en">CrossEntropyCost</span>, <span class="pl-c1">784</span>, <span class="pl-c1">88</span>, <span class="pl-c1">10</span>)
+
+<span class="pl-c">// Train the network</span>
+<span class="pl-k">val</span> <span class="pl-en">trainer</span> <span class="pl-k">=</span> <span class="pl-en">BackPropagationTrainer</span>(learningRate <span class="pl-k">=</span> <span class="pl-c1">0.005</span>, weightDecay <span class="pl-k">=</span> <span class="pl-c1">0.5</span>)
+
+<span class="pl-k">val</span> <span class="pl-en">numberOfEpochs</span> <span class="pl-k">=</span> <span class="pl-c1">30</span>
+<span class="pl-k">val</span> <span class="pl-en">miniBatchSize</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>
+
+<span class="pl-c">// First accuracy is the one of the untrained (random weights) network, second should be ≈ 90%; subsequent accuracies will improve</span>
+<span class="pl-k">val</span> <span class="pl-en">trainedNets</span> <span class="pl-k">=</span> trainer.trainAndTest(net, numberOfEpochs, miniBatchSize, trainingDataProvider.read.set, testSetIsFit)
+
+<span class="pl-k">val</span> <span class="pl-en">accuracy</span> <span class="pl-k">=</span> trainer.test(trainedNets.last._1, testSetIsFit)
+
+trainingDataProvider.close()
+testDataProvider.close()</pre></div>
 
 <h2>
 <a id="skylark-measure" class="anchor" href="#skylark-measure" aria-hidden="true"><span class="octicon octicon-link"></span></a>skylark-measure</h2>
