@@ -29,160 +29,75 @@
       <div class="inner clearfix">
         <section id="main-content">
           <h1>
-<a id="skylark" class="anchor" href="#skylark" aria-hidden="true"><span class="octicon octicon-link"></span></a>Skylark</h1>
+<a id="skylark" class="anchor" href="#skylark" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Skylark</h1>
 
 <p>Skylark is a set of libraries for quantitative and financial computation.</p>
 
 <h2>
-<a id="slylark-learning-neural" class="anchor" href="#slylark-learning-neural" aria-hidden="true"><span class="octicon octicon-link"></span></a>slylark-learning-neural</h2>
-
-<p><strong>skylark-learning-neural</strong> is a library for training, testing, and using neural networks.</p>
-
-<p>The example below shows how to train and test a feed-forward network using a backpropagation trainer on <a href="http://yann.lecun.com/exdb/mnist">MNIST database of handwritten digits</a>.</p>
-
-<div class="highlight highlight-scala"><pre><span class="pl-c">// Load training and test data</span>
-<span class="pl-k">val</span> <span class="pl-en">trainingDataProvider</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">MnistDataProvider</span>(<span class="pl-s"><span class="pl-pds">"</span>data/mnist/train-images-idx3-ubyte<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>data/mnist/train-labels-idx1-ubyte<span class="pl-pds">"</span></span>)
-
-<span class="pl-k">val</span> <span class="pl-en">testDataProvider</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">MnistDataProvider</span>(<span class="pl-s"><span class="pl-pds">"</span>data/mnist/t10k-images-idx3-ubyte<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>data/mnist/t10k-labels-idx1-ubyte<span class="pl-pds">"</span></span>)
-
-<span class="pl-k">val</span> <span class="pl-en">testSetIsFit</span> <span class="pl-k">=</span> (testDataProvider.read.set, <span class="pl-en">MnistSupervisedDataSample</span>.isFit _)
-
-<span class="pl-c">// Number of nodes in the hidden layer ≈ √ (784 * 10)</span>
-<span class="pl-k">val</span> <span class="pl-en">net</span> <span class="pl-k">=</span> <span class="pl-en">FullyConnectedNet</span>(<span class="pl-en">GaussianWeightAssignment</span>, <span class="pl-en">SigmoidActivation</span>, <span class="pl-en">CrossEntropyCost</span>, <span class="pl-c1">784</span>, <span class="pl-c1">88</span>, <span class="pl-c1">10</span>)
-
-<span class="pl-c">// Train the network</span>
-<span class="pl-k">val</span> <span class="pl-en">trainer</span> <span class="pl-k">=</span> <span class="pl-en">BackPropagationTrainer</span>(learningRate <span class="pl-k">=</span> <span class="pl-c1">0.005</span>, weightDecay <span class="pl-k">=</span> <span class="pl-c1">0.5</span>)
-
-<span class="pl-k">val</span> <span class="pl-en">numberOfEpochs</span> <span class="pl-k">=</span> <span class="pl-c1">30</span>
-<span class="pl-k">val</span> <span class="pl-en">miniBatchSize</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>
-
-<span class="pl-c">// First accuracy is the one of the untrained (random weights) network, second should be ≈ 90%; subsequent accuracies will improve</span>
-<span class="pl-k">val</span> <span class="pl-en">trainedNets</span> <span class="pl-k">=</span> trainer.trainAndTest(net, numberOfEpochs, miniBatchSize, trainingDataProvider.read.set, testSetIsFit)
-
-<span class="pl-k">val</span> <span class="pl-en">accuracy</span> <span class="pl-k">=</span> trainer.test(trainedNets.last._1, testSetIsFit)
-
-trainingDataProvider.close()
-testDataProvider.close()</pre></div>
-
-<h2>
-<a id="skylark-measure" class="anchor" href="#skylark-measure" aria-hidden="true"><span class="octicon octicon-link"></span></a>skylark-measure</h2>
+<a id="skylark-measure" class="anchor" href="#skylark-measure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>skylark-measure</h2>
 
 <p><strong>skylark-measure</strong> is a library dealing with unit-of-measure conversions in a type-safe manner. Many libraries provide similar functionality on 
 their surface but in the end lack the richness and versatility necessary to use in real enterprise applications.</p>
 
+<div class="highlight highlight-source-scala"><pre>libraryDependencies <span class="pl-k">+</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>com.quantarray<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>skylark-measure<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.3.1<span class="pl-pds">"</span></span></pre></div>
+
 <p>Many units of measure are defined for you.</p>
 
-<div class="highlight highlight-scala"><pre>kg
+<div class="highlight highlight-source-scala"><pre>kg
 lb
 <span class="pl-en">Pa</span>
 <span class="pl-en">Hz</span></pre></div>
 
 <p>Any unit of measure will have a set of basic properties that you would naturally expect to interrogate.</p>
 
-<div class="highlight highlight-scala"><pre>kg.name should be(<span class="pl-s"><span class="pl-pds">"</span>kg<span class="pl-pds">"</span></span>)
+<div class="highlight highlight-source-scala"><pre>kg.name should be(<span class="pl-s"><span class="pl-pds">"</span>kg<span class="pl-pds">"</span></span>)
 kg.dimension should be(<span class="pl-en">Mass</span>)
 kg.system should be(<span class="pl-en">SI</span>)
-kg.multBase.value should be((<span class="pl-c1">1000</span>, g)) <span class="pl-c">// Gram is a base unit of Mass in the SI system</span></pre></div>
+kg.isStructuralAtom should be(right <span class="pl-k">=</span> <span class="pl-c1">true</span>)
+kg.exponent should be(<span class="pl-c1">1.0</span>)
+kg <span class="pl-k">/</span> lb should be(<span class="pl-en">UnitMeasure</span>)
+kg <span class="pl-k">*</span> s should be(<span class="pl-en">ProductMeasure</span>(kg, s))
+kg.inverse should be(<span class="pl-en">ExponentialMeasure</span>(kg, <span class="pl-k">-</span><span class="pl-c1">1.0</span>))
+kg to kg should be(<span class="pl-en">Some</span>(<span class="pl-c1">1</span>))
+kg to lb should be(<span class="pl-en">Some</span>(<span class="pl-c1">2.204625</span>))
+kg to g should be(<span class="pl-en">Some</span>(<span class="pl-c1">1000</span>))</pre></div>
 
 <p>You can take existing units and compose more complex ones by multiplying, dividing, and exponentiating.</p>
 
-<div class="highlight highlight-scala"><pre>kg <span class="pl-k">*</span> m <span class="pl-k">/</span> sec ^ <span class="pl-c1">2</span></pre></div>
+<div class="highlight highlight-source-scala"><pre>kg <span class="pl-k">*</span> m <span class="pl-k">/</span> sec ^ <span class="pl-c1">2</span></pre></div>
 
 <p>You can find our the conversion factor from one <em>to</em> another.  No conversion factor may exist.</p>
 
-<div class="highlight highlight-scala"><pre>(kg to lb).value should be(<span class="pl-c1">2.204625</span>)</pre></div>
-
-<p>You can attach substances (or, in general, assets) to units of measure to distinguish substances of different quality or composition, 
-which can impact the conversion factor. For example, <a href="http://en.wikipedia.org/wiki/West_Texas_Intermediate">West Texas Intermediate</a> (WTI) barrel of 
-oil has a different conversion factor to gallons than a barrel of water.</p>
-
-<div class="highlight highlight-scala"><pre>(bbl to gal).value should equal(<span class="pl-c1">31.5</span>)
-(bbl of wti to gal).value should equal(<span class="pl-c1">42</span>)</pre></div>
-
-<p>Conversions are done though <code>implicit</code> <em>ConversionProviders</em>. The default <em>ConversionProviders</em> should suffice for most needs but you can roll your own at any time.</p>
+<div class="highlight highlight-source-scala"><pre>(kg to lb).value should be(<span class="pl-c1">2.204625</span>)</pre></div>
 
 <p>Too many systems omit units of measure when storing or presenting numerical quantities. Now you can store units of measure along with a numeric value as a plain string.
 With <code>MeasureParsers</code> you can turn that string back into a measure.</p>
 
-<div class="highlight highlight-scala"><pre>parseAll(measureExpression, <span class="pl-s"><span class="pl-pds">"</span>USD / bbl<span class="pl-pds">"</span></span>).get should be(<span class="pl-en">USD</span> <span class="pl-k">/</span> bbl)
-parseAll(measureExpression, <span class="pl-s"><span class="pl-pds">"</span>((USD * (MMBtu / bbl) ^ 3) ^ 2) / MMBtu<span class="pl-pds">"</span></span>).get should be(((<span class="pl-en">USD</span> <span class="pl-k">*</span> ((<span class="pl-en">MMBtu</span> <span class="pl-k">/</span> bbl) ^ <span class="pl-c1">3</span>)) ^ <span class="pl-c1">2</span>) <span class="pl-k">/</span> <span class="pl-en">MMBtu</span>)</pre></div>
+<div class="highlight highlight-source-scala"><pre>parseMeasure(<span class="pl-s"><span class="pl-pds">"</span>USD / bbl<span class="pl-pds">"</span></span>).get should equal(<span class="pl-en">USD</span> <span class="pl-k">/</span> bbl)</pre></div>
 
-<p>It's easy to compose numerical quantities with units of measure using a dot or postfix syntax. If the unit is structurally more complex than a single word, then
-use the <code>*</code> syntax.</p>
+<p>It's easy to compose numerical quantities with units of measure using a dot or postfix syntax.</p>
 
-<div class="highlight highlight-scala"><pre><span class="pl-c1">10.</span>kg
+<div class="highlight highlight-source-scala"><pre><span class="pl-c1">10.</span>kg
 <span class="pl-c1">4</span> m
-<span class="pl-c1">1000</span> <span class="pl-k">*</span> (bbl of wti)</pre></div>
+<span class="pl-c1">1000.0</span>.bbl</pre></div>
 
 <p>You can perform the expected arithmetic operations on quantities.</p>
 
-<div class="highlight highlight-scala"><pre><span class="pl-c1">10.</span>kg <span class="pl-k">*</span> <span class="pl-c1">5</span> should be(<span class="pl-c1">50.</span>kg)
-<span class="pl-c1">10</span> <span class="pl-k">*</span> (kg of cotton)) <span class="pl-k">*</span> <span class="pl-c1">5</span> should be(<span class="pl-c1">50</span> <span class="pl-k">*</span> (kg of cotton))
-<span class="pl-c1">10.</span>kg <span class="pl-k">*</span> <span class="pl-c1">4.</span>m should be(<span class="pl-c1">40</span> <span class="pl-k">*</span> (kg <span class="pl-k">*</span> m))</pre></div>
+<div class="highlight highlight-source-scala"><pre><span class="pl-c1">10.0</span>.kg <span class="pl-k">*</span> <span class="pl-c1">4.0</span>.m should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">40</span>, kg <span class="pl-k">*</span> m))
+<span class="pl-c1">4.0</span>.oz_troy <span class="pl-k">*</span> <span class="pl-c1">7.0</span>.percent should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">0.28</span>, oz_troy))
 
-<p>Arithmetic on different units may result in raw unit representation that may not be desirable. You may compact it as necessary.</p>
+<span class="pl-c1">10.0</span>.kg <span class="pl-k">/</span> <span class="pl-c1">2.0</span>.m should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">5</span>, kg <span class="pl-k">/</span> m))
+<span class="pl-c1">10.0</span>.<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-c1">2.0</span>.percent should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">500</span>, <span class="pl-en">USD</span>))
 
-<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">potOfGold</span> <span class="pl-k">=</span> <span class="pl-c1">30000.</span><span class="pl-en">USD</span>
-<span class="pl-k">val</span> <span class="pl-en">rate</span> <span class="pl-k">=</span> <span class="pl-c1">5.</span>percent
-<span class="pl-k">val</span> <span class="pl-en">panOfGold</span> <span class="pl-k">=</span> potOfGold <span class="pl-k">*</span> rate
-panOfGold should equal(<span class="pl-c1">1500</span> <span class="pl-k">*</span> (<span class="pl-en">USD</span> <span class="pl-k">*</span> <span class="pl-en">UnitMeasure</span>))
-panOfGold.measure.compact should equal(<span class="pl-en">USD</span>)</pre></div>
+<span class="pl-c1">10.0</span>.kg <span class="pl-k">+</span> <span class="pl-c1">3.0</span>.kg should equal(<span class="pl-c1">13.0</span>.kg)
+<span class="pl-c1">10.0</span>.kg <span class="pl-k">-</span> <span class="pl-c1">3.0</span>.kg should equal(<span class="pl-c1">7.0</span>.kg)
+<span class="pl-c1">10.0</span>.kg <span class="pl-k">+</span> (<span class="pl-c1">3.0</span>.lb to kg) should equal(<span class="pl-c1">11.360775642116007</span>.kg)</pre></div>
 
-<p>Quantity conversions are also supported via the same <code>to</code> operator.</p>
+<p>Quantity conversions are also supported via the same <code>to</code> operator. Basic converters are pre-defined. Conversions for product, ratio, and exponential measures
+is defined by converters and require their own CanConvert instances of their components' conversions.</p>
 
-<div class="highlight highlight-scala"><pre>((<span class="pl-c1">10</span> kg) to lb) should be(<span class="pl-c1">22.04625</span> lb)
-<span class="pl-c1">50</span> bp to percent should be(<span class="pl-c1">0.5</span>.percent)</pre></div>
-
-<p>Even when measures have non-trivial structural complexity, quantity conversions work as expected.</p>
-
-<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">rhoPercent</span> <span class="pl-k">=</span> <span class="pl-c1">2.5</span> <span class="pl-k">*</span> ((<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-en">MMBtu</span>) <span class="pl-k">/</span> percent)
-<span class="pl-k">val</span> <span class="pl-en">rhoBasisPoint</span> <span class="pl-k">=</span> rhoPercent to ((<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-en">MMBtu</span>) <span class="pl-k">/</span> bp)
-rhoBasisPoint should equal(<span class="pl-c1">0.025</span> <span class="pl-k">*</span> ((<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-en">MMBtu</span>) <span class="pl-k">/</span> bp))</pre></div>
-
-<h2>
-<a id="skylark-measure-market" class="anchor" href="#skylark-measure-market" aria-hidden="true"><span class="octicon octicon-link"></span></a>skylark-measure-market</h2>
-
-<p><strong>skylark-measure-market</strong> is a library that extends <strong>skylark-measure</strong> to the financial domain, where unit conversion factors are not fixed 
-and normally vary as a function of time or space or both. For example, the conversion factor from US Dollars (<code>USD</code>) to Japanese Yen (<code>JPY</code>) will
-depend on the observed time; similarly, a tanker of oil at two different locations around the globe will be worth a 
-different quantity of dollars, even when controlling for the currency exchange rate between the two locations.</p>
-
-<p>You can control the variability of a particular unit of measure with respect to another (e.g. how does <code>bbl of WTI</code> vary with respect to <code>USD</code>, otherwise known as a price)
-by constructing a market manifold, which is a fancy name for a curve or a surface. In general, a market manifold is a function; in can be discrete or continuous and can
-give you a value given a key.</p>
-
-<p>In finance, a forward curve carries a price - a value of something vs. something else (e.g. <code>bbl of wti / USD</code> or <code>USD / GBP</code>).</p>
-
-<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">wtiForwardCurve</span> <span class="pl-k">=</span> <span class="pl-en">DiscreteForwardCurve</span>(<span class="pl-en">USD</span> <span class="pl-k">/</span> (bbl of wti), <span class="pl-en">Seq</span>((<span class="pl-s"><span class="pl-pds">"</span>2014-04-01<span class="pl-pds">"</span></span>.d, <span class="pl-c1">100.0</span>), (<span class="pl-s"><span class="pl-pds">"</span>2017-01-01<span class="pl-pds">"</span></span>.d, <span class="pl-c1">150.0</span>)))</pre></div>
-
-<p>You can combine multiple manifolds into a <code>Market</code>, which is a special kind of a bag carrying all data relevant to a given observation date/time.</p>
-
-<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">observationDate</span><span class="pl-k">:</span> <span class="pl-en">DateTime</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>2014-04-01<span class="pl-pds">"</span></span>.d
-<span class="pl-k">val</span> <span class="pl-en">market</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">GlobalMarket</span>(
-    <span class="pl-en">Seq</span>(
-      <span class="pl-en">TimeInstantCurve</span>(observationDate),
-      <span class="pl-en">DiscreteForwardCurve</span>(<span class="pl-en">USD</span> <span class="pl-k">/</span> (bbl of wti), <span class="pl-en">Seq</span>((<span class="pl-s"><span class="pl-pds">"</span>2014-04-01<span class="pl-pds">"</span></span>.d, <span class="pl-c1">100.0</span>), (<span class="pl-s"><span class="pl-pds">"</span>2017-01-01<span class="pl-pds">"</span></span>.d, <span class="pl-c1">150.0</span>))),
-      <span class="pl-en">DiscreteForwardCurve</span>.flat(<span class="pl-c1">1.2</span> <span class="pl-k">*</span> (<span class="pl-en">CAD</span> <span class="pl-k">/</span> <span class="pl-en">USD</span>), observationDate.until(<span class="pl-s"><span class="pl-pds">"</span>2018-01-01<span class="pl-pds">"</span></span>.d).by(<span class="pl-en">Days</span>.<span class="pl-en">ONE</span>)),
-      <span class="pl-en">DiscreteForwardCurve</span>.flat(<span class="pl-c1">120</span> <span class="pl-k">*</span> (<span class="pl-en">CAD</span> <span class="pl-k">/</span> <span class="pl-en">JPY</span>), observationDate.until(<span class="pl-s"><span class="pl-pds">"</span>2018-01-01<span class="pl-pds">"</span></span>.d).by(<span class="pl-en">Days</span>.<span class="pl-en">ONE</span>)),
-      <span class="pl-en">DiscreteForwardCurve</span>.flat(<span class="pl-c1">100</span> <span class="pl-k">*</span> (<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-en">JPY</span>), observationDate.until(<span class="pl-s"><span class="pl-pds">"</span>2018-01-01<span class="pl-pds">"</span></span>.d).by(<span class="pl-en">Days</span>.<span class="pl-en">ONE</span>))
-    )
-  )</pre></div>
-
-<p>Note that <code>observationDate</code> is attached to the <code>Market</code> via a special <code>TimeInstantCurve</code> instead of making it a special property of the <code>Market</code>.</p>
-
-<p>With the above assembled, you can do a lot of neat stuff.</p>
-
-<div class="highlight highlight-scala"><pre><span class="pl-k">val</span> <span class="pl-en">barrelPrice</span> <span class="pl-k">=</span> <span class="pl-c1">42</span> <span class="pl-k">*</span> (<span class="pl-en">USD</span> <span class="pl-k">/</span> (bbl of wti))
-<span class="pl-k">val</span> <span class="pl-en">gallonPrice</span> <span class="pl-k">=</span> <span class="pl-c1">1</span> <span class="pl-k">*</span> (<span class="pl-en">CAD</span> <span class="pl-k">/</span> gal)
-
-<span class="pl-k">val</span> <span class="pl-en">price1</span> <span class="pl-k">=</span> (barrelPrice <span class="pl-k">+</span> gallonPrice) to (<span class="pl-en">CAD</span> <span class="pl-k">/</span> gal)
-<span class="pl-k">val</span> <span class="pl-en">price2</span> <span class="pl-k">=</span> (gallonPrice <span class="pl-k">+</span> barrelPrice) to (<span class="pl-en">USD</span> <span class="pl-k">/</span> (bbl of wti))
-
-price1.value should equal(<span class="pl-c1">2.2</span> <span class="pl-k">+-</span> <span class="pl-c1">0.0000000000001</span>)
-price1.measure should be(<span class="pl-en">CAD</span> <span class="pl-k">/</span> gal)
-
-price2.value should equal(<span class="pl-c1">77.0</span> <span class="pl-k">+-</span> <span class="pl-c1">0.0000000000001</span>)
-price2.measure should be(<span class="pl-en">USD</span> <span class="pl-k">/</span> (bbl of wti))</pre></div>
+<div class="highlight highlight-source-scala"><pre>(<span class="pl-c1">1.0</span>.ft to in) should equal(<span class="pl-c1">12.0</span> in)
+(<span class="pl-c1">12.0</span>.in to ft) should equal(<span class="pl-c1">1.0</span> ft)</pre></div>
         </section>
 
         <aside id="sidebar">
