@@ -24,7 +24,7 @@ package com.quantarray.skylark.measure
  *
  * @author Araik Grigoryan
  */
-abstract class Scale(val dimension: Dimension)
+abstract class Scale[D <: Dimension[D]](val dimension: D)
 
 case object Kelvin extends Scale(Temperature)
 

@@ -24,24 +24,13 @@ package com.quantarray.skylark.measure
  *
  * @author Araik Grigoryan
  */
-case class TemporalFrequencyMeasure(name: String, system: SystemOfUnits, declMultBase: Option[(Double, Measure)]) extends Measure with MeasureCanBecomeAsset
+case class TemporalFrequencyMeasure(name: String, system: SystemOfUnits) extends Measure[TemporalFrequencyMeasure]
 {
-  type D = TemporalFrequency.type
+  type D = TemporalFrequencyDimension
 
-  type Repr = TemporalFrequencyMeasure
+  val dimension = TemporalFrequency
 
-  def dimension = TemporalFrequency
-
-  override protected[measure] def build(name: String, mb: (Double, Measure)): Repr = TemporalFrequencyMeasure(name, system, Some(mb))
+  override def composes(name: String, system: SystemOfUnits): TemporalFrequencyMeasure = TemporalFrequencyMeasure(name, system)
 
   override def toString = name
-}
-
-object TemporalFrequencyMeasure
-{
-  def apply(name: String, system: SystemOfUnits) = new TemporalFrequencyMeasure(name, system, None)
-
-  def apply(name: String, system: SystemOfUnits, dmb: (Double, Measure)): TemporalFrequencyMeasure = new TemporalFrequencyMeasure(name, system, Some(dmb))
-
-  def apply(name: String, dmb: (Double, Measure)): TemporalFrequencyMeasure = apply(name, dmb._2.system, dmb)
 }

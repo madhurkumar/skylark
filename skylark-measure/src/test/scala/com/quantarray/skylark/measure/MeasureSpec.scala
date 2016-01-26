@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,77 +19,38 @@
 
 package com.quantarray.skylark.measure
 
-import com.quantarray.skylark.measure.Spacetime.Implicits.SpaceToSpacetime
-import com.quantarray.skylark.measure.conversion.{PhysicalConstantConversionProvider, PhysicalSubstanceConversionProvider}
-import com.quantarray.skylark.measure.substance.commodities.PhysicalSubstances
-import org.joda.time.DateTime
-import org.scalatest.OptionValues._
+import com.quantarray.skylark.measure.conversion._
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
- * Measure spec.
- *
- * @author Araik Grigoryan
- */
-class MeasureSpec extends FlatSpec with Matchers with PhysicalSubstances
+  * Measure spec.
+  *
+  * @author Araik Grigoryan
+  */
+class MeasureSpec extends FlatSpec with Matchers
 {
-  implicit val constantConversion = new PhysicalConstantConversionProvider()
-
-  implicit val substanceConversion = new PhysicalSubstanceConversionProvider(constantConversion)
-
   "kg" should "have expected properties" in
     {
       kg.name should be("kg")
       kg.dimension should be(Mass)
       kg.system should be(SI)
-      kg.declMultBase.value should be((1000, g))
-      kg.multBase.value should be((1000, g))
       kg.isStructuralAtom should be(right = true)
-      kg.expBase should be(kg)
-      kg.exp should be(1.0)
+      kg.exponent should be(1.0)
+      kg / lb should be(UnitMeasure)
+      kg * s should be(ProductMeasure(kg, s))
       kg.inverse should be(ExponentialMeasure(kg, -1.0))
-      kg / lb should be(RatioMeasure(kg, lb))
-      kg * 17.0 should be(MassMeasure(s"17.0 $kg", (17000.0, g)))
-      kg ^ 2 should be(ExponentialMeasure(kg, 2.0))
-      kg ^(2, Some((1.0, g ^ 2))) should be(ExponentialMeasure(kg, 2.0, Some((1.0, ExponentialMeasure(g, 2.0, None)))))
+      kg to kg should be(Some(1))
+      kg to lb should be(Some(2.204625))
+      kg to g should be(Some(1000))
     }
 
-  it should "equal itself" in
+  "mi/h" should "be convertible to m/s" in
     {
-      kg should be(kg)
+      (mi / h) to (m / s) should be(Some(0.4470388888888889))
     }
 
-  it should "be convertible to lb" in
+  it should "be collectible" in
     {
-      constantConversion.factor(kg, lb).value should be(0.45359188070533535)
-      constantConversion.factor(lb, kg).value should be(2.204625)
-
-      (kg to lb).value should be(2.204625)
-      (lb to kg).value should be(0.45359188070533535)
+      (mi / h).collect({ case RatioMeasure(n, _) => n }) should be(mi)
     }
-
-  it should "be convertible to lb in presence of an attached substance" in
-    {
-      constantConversion.factor(kg of cotton, lb of cotton).value should be(0.45359188070533535)
-
-      (kg of cotton to lb).value should be(2.204625)
-      (lb of cotton to (kg of cotton)).value should be(0.45359188070533535)
-
-      (kg of cotton to kg).value should be(1)
-    }
-
-  it should "be composable with supported DSL" in
-    {
-      (kg of cotton) at HereAndNow
-      (kg of cotton) at Here.on(DateTime.now)
-      (kg of cotton) on DateTime.now
-      (kg of cotton) on Earth
-    }
-
-  "bbl" should "be convertible to gal depending on the substance" in
-    {
-      (bbl to gal).value should equal(31.5)
-      (bbl of wti to gal).value should equal(42)
-    }
-
 }

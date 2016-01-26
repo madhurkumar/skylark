@@ -24,24 +24,13 @@ package com.quantarray.skylark.measure
  *
  * @author Araik Grigoryan
  */
-case class ElectricCurrentMeasure(name: String, system: SystemOfUnits, declMultBase: Option[(Double, Measure)]) extends Measure with MeasureCanBecomeAsset
+case class ElectricCurrentMeasure(name: String, system: SystemOfUnits) extends Measure[ElectricCurrentMeasure]
 {
-  type D = ElectricCurrent.type
+  type D = ElectricCurrentDimension
 
-  type Repr = ElectricCurrentMeasure
+  val dimension = ElectricCurrent
 
-  def dimension = ElectricCurrent
-
-  override protected[measure] def build(name: String, mb: (Double, Measure)): Repr = ElectricCurrentMeasure(name, system, Some(mb))
+  override def composes(name: String, system: SystemOfUnits): ElectricCurrentMeasure = ElectricCurrentMeasure(name, system)
 
   override def toString = name
-}
-
-object ElectricCurrentMeasure
-{
-  def apply(name: String, system: SystemOfUnits) = new ElectricCurrentMeasure(name, system, None)
-
-  def apply(name: String, system: SystemOfUnits, dmb: (Double, Measure)): ElectricCurrentMeasure = new ElectricCurrentMeasure(name, system, Some(dmb))
-
-  def apply(name: String, dmb: (Double, Measure)): ElectricCurrentMeasure = apply(name, dmb._2.system, dmb)
 }

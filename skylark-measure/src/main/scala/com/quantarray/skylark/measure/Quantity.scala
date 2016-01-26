@@ -26,7 +26,7 @@ import scala.language.implicitConversions
  *
  * @author Araik Grigoryan
  */
-case class Quantity[M <: Measure](value: Double, measure: M)
+case class Quantity[M <: Measure[M]](value: Double, measure: M)
 {
   def unary_-() = Quantity(-value, measure)
 
@@ -38,33 +38,32 @@ case class Quantity[M <: Measure](value: Double, measure: M)
 
   def -(constant: Double) = Quantity(value - constant, measure)
 
-  def *[N <: Measure](quantity: Quantity[N]): Quantity[ProductMeasure] =
+  def +[M2 <: Measure[M2]](quantity: Quantity[M2])(implicit ev: M =:= M2): Quantity[M] = Quantity(value + quantity.value, measure + quantity.measure)
+
+  def -[M2 <: Measure[M2]](quantity: Quantity[M2])(implicit ev: M =:= M2): Quantity[M] = Quantity(value - quantity.value, measure - quantity.measure)
+
+  def /[M2 <: Measure[M2], R <: Measure[R]](quantity: Quantity[M2])(implicit cd: CanDivide[M, M2, R]): Quantity[R] =
+    Quantity(value / quantity.value * cd.unit(measure, quantity.measure), measure / quantity.measure)
+
+  def *[M2 <: Measure[M2], R <: Measure[R]](quantity: Quantity[M2])(implicit cm: CanMultiply[M, M2, R]): Quantity[R] =
+    Quantity(value * quantity.value * cm.unit(measure, quantity.measure), measure * quantity.measure)
+
+  def ^[R <: Measure[R]](exponent: Double)(implicit ce: CanExponentiate[M, R]): Quantity[R] = Quantity(math.pow(value, exponent), measure ^ exponent)
+
+  def to[M2 <: Measure[M2]](target: M2)(implicit cc: CanConvert[M, M2]): Quantity[M2] = cc.convert(measure, target) match
   {
-    quantity.measure.dimension match
-    {
-      case _: NoDimension.type => Quantity(value * quantity.value * quantity.measure.multBaseValue, measure * UnitMeasure)
-      case _ => Quantity(value * quantity.value, measure * quantity.measure)
-    }
+    case Some(cf) => Quantity(value * cf, target)
+    case _ => throw new Exception(s"No conversion from [$measure] to [$target] available in $cc.")
   }
 
-  def /[N <: Measure](quantity: Quantity[N]): Quantity[RatioMeasure] =
-  {
-    quantity.measure.dimension match
-    {
-      case _: NoDimension.type => Quantity(value / (quantity.value * quantity.measure.multBaseValue), measure / UnitMeasure)
-      case _ => Quantity(value / quantity.value, measure / quantity.measure)
-    }
-  }
+  def reduce[R <: Measure[R], D](f: D => R)(implicit cr: CanReduce[M, D]): Quantity[R] = Quantity(value, f(cr.reduce(measure)))
 
   override def toString = s"$value $measure"
 }
 
 object Quantity
 {
-
-  object Implicits
-  {
-    implicit def quantityToTuple2[M <: Measure](quantity: Quantity[M]): (Double, M) = (quantity.value, quantity.measure)
-  }
-
+  def reduced[M <: Measure[M], R <: Measure[R]](value: Double, measure: M)
+                                               (implicit cr: CanReduce[M, R]): Quantity[R] = Quantity[R](value, cr.reduce(measure))
 }
+

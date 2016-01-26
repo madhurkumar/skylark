@@ -19,50 +19,51 @@
 
 package com.quantarray.skylark.measure
 
-import com.quantarray.skylark.measure.substance.commodities.PhysicalSubstances
 import org.scalatest.{FlatSpec, Matchers}
 
-/**
- * Measure parsers spec.
- *
- * @author Araik Grigoryan
- */
-class MeasureParsersSpec extends FlatSpec with Matchers with MeasureParsers with PhysicalSubstances
+class MeasureParsersSpec extends FlatSpec with Matchers with MeasureParsers
 {
-  implicit final val measureProvider = new PhysicalMeasureProvider
+  final val measureProvider = new MeasureProvider
+  {
 
-  implicit final val assetProvider = new PhysicalAssetProvider
+    override def read: MeasureReader = new MeasureReader
+    {
+      override def apply(name: String): Option[UntypedMeasure] = name match
+      {
+        case "USD" => Some(USD)
+        case "bbl" => Some(bbl)
+        case "m" => Some(m)
+        case "s" => Some(s)
+        case "kg" => Some(kg)
+      }
+    }
+  }
 
   "USD" should "be parsable" in
     {
-      parseAll(measureExpression, "USD").get should be(USD)
+      parseMeasure("USD").get should equal(USD)
     }
 
   "USD / bbl" should "be parsable" in
     {
-      parseAll(measureExpression, "USD / bbl").get should be(USD / bbl)
+      parseMeasure("USD / bbl").get should equal(USD / bbl)
     }
 
-  "USD * (MMBtu / bbl) ^ 3" should "be parsable" in
+  "(m / s) ^ 3" should "be parsable" in
     {
-      parseAll(measureExpression, "USD * (MMBtu / bbl) ^ 3").get should be(USD * ((MMBtu / bbl) ^ 3))
+      parseMeasure("(m / s) ^ 3").get should equal((m / s) ^ 3)
     }
 
-  "((USD * (MMBtu / bbl) ^ 3) ^ 2) / MMBtu" should "be parsable" in
+  "kg * ((m / s) ^ 2)" should "be parsable" in
     {
-      parseAll(measureExpression, "((USD * (MMBtu / bbl) ^ 3) ^ 2) / MMBtu").get should be(((USD * ((MMBtu / bbl) ^ 3)) ^ 2) / MMBtu)
-    }
-
-  "bbl of WTI" should "be parsable" in
-    {
-      parseAll(measureExpression, "bbl of WTI").get should be(bbl of wti)
+      parseMeasure("kg * ((m / s) ^ 2)").get should equal(kg * ((m / s) ^ 2))
     }
 
   "XYZ" should "not be parsable" in
     {
       intercept[MatchError]
       {
-        parseAll(measureExpression, "XYZ")
+        parseMeasure("XYZ")
       }
     }
 }

@@ -24,24 +24,13 @@ package com.quantarray.skylark.measure
  *
  * @author Araik Grigoryan
  */
-case class LuminousFluxMeasure(name: String, system: SystemOfUnits, declMultBase: Option[(Double, Measure)]) extends Measure with MeasureCanBecomeAsset
+case class LuminousFluxMeasure(name: String, system: SystemOfUnits) extends Measure[LuminousFluxMeasure]
 {
-  type D = LuminousFlux.type
+  type D = LuminousFluxDimension
 
-  type Repr = LuminousFluxMeasure
+  val dimension = LuminousFlux
 
-  def dimension = LuminousFlux
-
-  override protected[measure] def build(name: String, mb: (Double, Measure)): Repr = LuminousFluxMeasure(name, system, Some(mb))
+  override def composes(name: String, system: SystemOfUnits): LuminousFluxMeasure = LuminousFluxMeasure(name, system)
 
   override def toString = name
-}
-
-object LuminousFluxMeasure
-{
-  def apply(name: String, system: SystemOfUnits) = new LuminousFluxMeasure(name, system, None)
-
-  def apply(name: String, system: SystemOfUnits, dmb: (Double, Measure)): LuminousFluxMeasure = new LuminousFluxMeasure(name, system, Some(dmb))
-
-  def apply(name: String, dmb: (Double, Measure)): LuminousFluxMeasure = apply(name, dmb._2.system, dmb)
 }

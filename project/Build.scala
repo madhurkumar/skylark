@@ -5,6 +5,8 @@ object Build
 {
   val organization = "com.quantarray"
 
+  val version = "0.3.1"
+
   val scalaVersion = "2.11.7"
 
   val scalaParserCombinatorsVersion = "1.0.2"
@@ -18,8 +20,8 @@ object Build
   val jodaConvertVersion = "1.5"
   val jodaTimeVersion = "2.3"
   val logbackClassicVersion = "1.0.13"
-  val phantomDslVersion = "1.2.7"
-  val scalaCsvVersion = "1.0.0"
+  val phantomDslVersion = "1.5.0"
+  val scalaCsvVersion = "1.2.1"
   val scalacticVersion = "2.2.1"
   val scalameterVersion = "0.6"
   val scalaMockScalaTestSupportVersion = "3.1.4"
@@ -30,4 +32,9 @@ object Build
   val slickExtensionsVersion = "2.1.0"
   val sprayVersion = "1.3.2"
   val sprayJsonVersion = "1.3.0"
+
+  /**
+   * Resolve others' artifacts.
+   */
+  val websudosReleasesRepo = "Websudos Releases Repository" at "https://dl.bintray.com/websudos/oss-releases/"
 }
