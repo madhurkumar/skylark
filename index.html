@@ -39,7 +39,7 @@
 <p><strong>skylark-measure</strong> is a library dealing with unit-of-measure conversions in a type-safe manner. Many libraries provide similar functionality on 
 their surface but in the end lack the richness and versatility necessary to use in real enterprise applications.</p>
 
-<div class="highlight highlight-source-scala"><pre>libraryDependencies <span class="pl-k">+</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>com.quantarray<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>skylark-measure<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.3.1<span class="pl-pds">"</span></span></pre></div>
+<div class="highlight highlight-source-scala"><pre>libraryDependencies <span class="pl-k">+</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>com.quantarray<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>skylark-measure<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.4.0<span class="pl-pds">"</span></span></pre></div>
 
 <p>Many units of measure are defined for you.</p>
 
@@ -66,11 +66,11 @@ kg to g should be(<span class="pl-en">Some</span>(<span class="pl-c1">1000</span
 
 <div class="highlight highlight-source-scala"><pre>kg <span class="pl-k">*</span> m <span class="pl-k">/</span> sec ^ <span class="pl-c1">2</span></pre></div>
 
-<p>You can find our the conversion factor from one <em>to</em> another.  No conversion factor may exist.</p>
+<p>You can find our the conversion factor from one <code>to</code> another.  No conversion factor may exist.</p>
 
 <div class="highlight highlight-source-scala"><pre>(kg to lb).value should be(<span class="pl-c1">2.204625</span>)</pre></div>
 
-<p>Too many systems omit units of measure when storing or presenting numerical quantities. Now you can store units of measure along with a numeric value as a plain string.
+<p>Many systems omit units of measure when storing or presenting numerical quantities. Now you can store units of measure along with a numeric value as a plain string.
 With <code>MeasureParsers</code> you can turn that string back into a measure.</p>
 
 <div class="highlight highlight-source-scala"><pre>parseMeasure(<span class="pl-s"><span class="pl-pds">"</span>USD / bbl<span class="pl-pds">"</span></span>).get should equal(<span class="pl-en">USD</span> <span class="pl-k">/</span> bbl)</pre></div>
@@ -83,21 +83,21 @@ With <code>MeasureParsers</code> you can turn that string back into a measure.</
 
 <p>You can perform the expected arithmetic operations on quantities.</p>
 
-<div class="highlight highlight-source-scala"><pre><span class="pl-c1">10.0</span>.kg <span class="pl-k">*</span> <span class="pl-c1">4.0</span>.m should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">40</span>, kg <span class="pl-k">*</span> m))
-<span class="pl-c1">4.0</span>.oz_troy <span class="pl-k">*</span> <span class="pl-c1">7.0</span>.percent should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">0.28</span>, oz_troy))
+<div class="highlight highlight-source-scala"><pre><span class="pl-c1">10.</span>kg <span class="pl-k">*</span> <span class="pl-c1">4.</span>m should equal(<span class="pl-c1">40.0</span> <span class="pl-k">*</span> (kg <span class="pl-k">*</span> m))
+(<span class="pl-c1">4.</span>oz_troy <span class="pl-k">*</span> <span class="pl-c1">7.</span>percent).to(oz_troy) should equal(<span class="pl-c1">0.28</span>.oz_troy)
 
-<span class="pl-c1">10.0</span>.kg <span class="pl-k">/</span> <span class="pl-c1">2.0</span>.m should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">5</span>, kg <span class="pl-k">/</span> m))
-<span class="pl-c1">10.0</span>.<span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-c1">2.0</span>.percent should equal(<span class="pl-en">Quantity</span>(<span class="pl-c1">500</span>, <span class="pl-en">USD</span>))
+<span class="pl-c1">10.</span>kg <span class="pl-k">/</span> <span class="pl-c1">2.</span>m should equal(<span class="pl-c1">5.0</span> <span class="pl-k">*</span> (kg <span class="pl-k">/</span> m))
+(<span class="pl-c1">10.</span><span class="pl-en">USD</span> <span class="pl-k">/</span> <span class="pl-c1">2.</span>percent).to(<span class="pl-en">USD</span>) should equal(<span class="pl-c1">500.</span><span class="pl-en">USD</span>)
 
-<span class="pl-c1">10.0</span>.kg <span class="pl-k">+</span> <span class="pl-c1">3.0</span>.kg should equal(<span class="pl-c1">13.0</span>.kg)
-<span class="pl-c1">10.0</span>.kg <span class="pl-k">-</span> <span class="pl-c1">3.0</span>.kg should equal(<span class="pl-c1">7.0</span>.kg)
-<span class="pl-c1">10.0</span>.kg <span class="pl-k">+</span> (<span class="pl-c1">3.0</span>.lb to kg) should equal(<span class="pl-c1">11.360775642116007</span>.kg)</pre></div>
+<span class="pl-c1">10.</span>kg <span class="pl-k">+</span> <span class="pl-c1">3.</span>kg should equal(<span class="pl-c1">13.</span>kg)
+<span class="pl-c1">10.</span>kg <span class="pl-k">-</span> <span class="pl-c1">3.</span>kg should equal(<span class="pl-c1">7.</span>kg)
+<span class="pl-c1">10.</span>kg <span class="pl-k">+</span> (<span class="pl-c1">3.</span>lb to kg) should equal(<span class="pl-c1">11.360775642116007</span>.kg)</pre></div>
 
 <p>Quantity conversions are also supported via the same <code>to</code> operator. Basic converters are pre-defined. Conversions for product, ratio, and exponential measures
-is defined by converters and require their own CanConvert instances of their components' conversions.</p>
+are defined by converters and require their own CanConvert instances of their components' conversions.</p>
 
-<div class="highlight highlight-source-scala"><pre>(<span class="pl-c1">1.0</span>.ft to in) should equal(<span class="pl-c1">12.0</span> in)
-(<span class="pl-c1">12.0</span>.in to ft) should equal(<span class="pl-c1">1.0</span> ft)</pre></div>
+<div class="highlight highlight-source-scala"><pre>(<span class="pl-c1">1.</span>ft to in) should equal(<span class="pl-c1">12.0</span> in)
+(<span class="pl-c1">12.</span>in to ft) should equal(<span class="pl-c1">1.0</span> ft)</pre></div>
         </section>
 
         <aside id="sidebar">
