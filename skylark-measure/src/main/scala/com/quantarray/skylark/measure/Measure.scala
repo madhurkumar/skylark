@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 package com.quantarray.skylark.measure
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 /**
@@ -27,38 +28,43 @@ import scala.language.implicitConversions
   * The guiding principle(s) of design is and should be:
   *
   * 1. Construction of a measure should be fast, without any recursion/iteration to perform simplification.
-  * 2. Compute-intensive methods, such as reduce, perform simplification and should be called only when necessary.
+  * 2. Compute-intensive methods, such as simplify, perform simplification and should be called only when necessary.
   *
   * @author Araik Grigoryan
   */
-trait Measure[Self <: Measure[Self]] extends UntypedMeasure
+trait Measure[Self <: Measure[Self]] extends untyped.Measure
 {
   self: Self =>
 
   type D <: Dimension[D]
 
   /**
-    * Measure name.
-    */
-  val name: String
-
-  /**
-    * Gets structural name of this measure.
-    */
-  final val structuralName = if (isStructuralAtom) name else s"($name)"
-
-  /**
     * Gets dimension of this measure.
     */
   def dimension: D
 
-  def composes(name: String, system: SystemOfUnits): Self
+  def base: Option[(Self, Double)]
 
-  def composes(name: String): Self = composes(name, system)
+  lazy val immediateBase = base.map(_._2).getOrElse(1.0)
 
-  def +[M2 <: Measure[M2]](that: M2)(implicit ev: Self =:= M2): Self = this
+  lazy val ultimateBase: Option[(Self, Double)] =
+  {
+    @tailrec
+    def descend(measure: Option[Self], parent: Option[Self], multiple: Double): Option[(Self, Double)] =
+    {
+      measure match
+      {
+        case None => parent.map((_, multiple))
+        case Some(x) => descend(x.base.map(_._1), measure, x.base.map(_._2).getOrElse(1.0) * multiple)
+      }
+    }
 
-  def -[M2 <: Measure[M2]](that: M2)(implicit ev: Self =:= M2): Self = this
+    descend(Some(this), None, 1.0)
+  }
+
+  def composes(name: String, system: SystemOfUnits, multiple: Double): Self
+
+  def composes(name: String, multiple: Double): Self = composes(name, system, multiple)
 
   /**
     * Turns this measure into a general RatioMeasure.
@@ -73,28 +79,33 @@ trait Measure[Self <: Measure[Self]] extends UntypedMeasure
   /**
     * Turns this measure into a general ExponentialMeasure.
     */
-  def ^[R](exponent: Double)(implicit ce: CanExponentiate[Self, R]): R = ce.pow(this, exponent)
+  def ^[R <: Measure[R]](exponent: Double)(implicit ce: CanExponentiate[Self, R]): R = ce.pow(this, exponent)
 
   /**
     * Gets an inverse of this measure.
     */
-  def inverse[R](implicit ce: CanExponentiate[Self, R]) = this ^ -exponent
+  def inverse[R <: Measure[R]](implicit ce: CanExponentiate[Self, R]) = this ^ -exponent
 
   /**
     * Converts to target measure.
     */
   def to[M2 <: Measure[M2]](target: M2)(implicit cc: CanConvert[Self, M2]): Option[Double] = cc.convert(this, target)
 
-  def reduce[R](implicit cr: CanReduce[Self, R]): R = cr.reduce(this)
+  /**
+    * Converts to target measure with default value.
+    */
+  def toOrElse[M2 <: Measure[M2]](target: M2, default: Double)(implicit cc: CanConvert[Self, M2]): Double = to(target).getOrElse(default)
 
-  @inline
-  final def collect[B](pf: PartialFunction[Self, B]): B = pf(this)
+  /**
+    * Attempts to simplify to target type.
+    */
+  def simplify[R <: Measure[R]](implicit cs: CanSimplify[Self, Option[R]]): Option[R] = cs.simplify(this)
 }
 
 /**
   * Product measure.
   */
-trait ProductMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[ProductMeasure[M1, M2]] with ProductUntypedMeasure
+trait ProductMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[ProductMeasure[M1, M2]] with untyped.ProductMeasure
 {
   val multiplicand: M1
 
@@ -104,7 +115,7 @@ trait ProductMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[Produ
 
   override lazy val dimension = ProductDimension(multiplicand.dimension, multiplier.dimension)
 
-  final override val isStructuralAtom = false
+  override val isStructuralAtom = false
 }
 
 object ProductMeasure
@@ -121,7 +132,9 @@ object ProductMeasure
 
       lazy val name = s"${multiplicand.structuralName} * ${multiplier.structuralName}"
 
-      override def composes(name: String, system: SystemOfUnits): ProductMeasure[M1, M2] = this
+      override def base: Option[(ProductMeasure[M1, M2], Double)] = None
+
+      override def composes(name: String, system: SystemOfUnits, multiple: Double): ProductMeasure[M1, M2] = this
 
       override def equals(obj: scala.Any): Boolean = obj match
       {
@@ -131,19 +144,25 @@ object ProductMeasure
 
       override def hashCode(): Int = 41 * multiplicand.hashCode() + multiplier.hashCode()
 
+      private val productElements = Seq(multiplicand, multiplier)
+
+      override def productElement(n: Int): Any = productElements(n)
+
+      val productArity: Int = productElements.size
+
+      override def canEqual(that: Any): Boolean = that.isInstanceOf[ProductMeasure[_, _]]
+
       override def toString = name
     }
   }
 
   def unapply[M1 <: Measure[M1], M2 <: Measure[M2]](pm: ProductMeasure[M1, M2]): Option[(M1, M2)] = Some((pm.multiplicand, pm.multiplier))
-
-  def unapply[M1 <: Measure[M1], M2 <: Measure[M2]](multiplicand: M1, multiplier: M2): Option[(M1, M2)] = Some((multiplicand, multiplier))
 }
 
 /**
   * Ratio measure.
   */
-trait RatioMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[RatioMeasure[M1, M2]] with RatioUntypedMeasure
+trait RatioMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[RatioMeasure[M1, M2]] with untyped.RatioMeasure
 {
   val numerator: M1
 
@@ -153,7 +172,7 @@ trait RatioMeasure[M1 <: Measure[M1], M2 <: Measure[M2]] extends Measure[RatioMe
 
   override lazy val dimension = RatioDimension(numerator.dimension, denominator.dimension)
 
-  final override val isStructuralAtom = false
+  override val isStructuralAtom = false
 
   /**
     * Converts to target measure.
@@ -183,7 +202,9 @@ object RatioMeasure
 
       lazy val name = s"${numerator.structuralName} / ${denominator.structuralName}"
 
-      override def composes(name: String, system: SystemOfUnits): RatioMeasure[M1, M2] = this
+      override def base: Option[(RatioMeasure[M1, M2], Double)] = None
+
+      override def composes(name: String, system: SystemOfUnits, multiple: Double): RatioMeasure[M1, M2] = this
 
       override def equals(obj: scala.Any): Boolean = obj match
       {
@@ -193,52 +214,54 @@ object RatioMeasure
 
       override def hashCode(): Int = 41 * numerator.hashCode() + denominator.hashCode()
 
+      private val productElements = Seq(numerator, denominator)
+
+      override def productElement(n: Int): Any = productElements(n)
+
+      val productArity: Int = productElements.size
+
+      override def canEqual(that: Any): Boolean = that.isInstanceOf[RatioMeasure[_, _]]
+
       override def toString = name
     }
   }
 
   def unapply[M1 <: Measure[M1], M2 <: Measure[M2]](rm: RatioMeasure[M1, M2]): Option[(M1, M2)] = Some((rm.numerator, rm.denominator))
-
-  def unapply[M1 <: Measure[M1], M2 <: Measure[M2]](numerator: M1, denominator: M2): Option[(M1, M2)] = Some((numerator, denominator))
 }
 
 /**
   * Exponential measure.
   */
-trait ExponentialMeasure[B <: Measure[B]] extends Measure[ExponentialMeasure[B]] with ExponentialUntypedMeasure
+trait ExponentialMeasure[B <: Measure[B]] extends Measure[ExponentialMeasure[B]] with untyped.ExponentialMeasure
 {
-  val base: B
+  val expBase: B
 
-  type D = ExponentialDimension[base.D]
+  type D = ExponentialDimension[expBase.D]
 
-  val baseName = exponent match
-  {
-    case 1.0 => s"$base"
-    case _ => s"${base.structuralName} ^ $exponent"
-  }
+  override lazy val dimension = ExponentialDimension(expBase.dimension, exponent)
 
-  override lazy val dimension = ExponentialDimension(base.dimension, exponent)
+  override val isStructuralAtom = false
 
-  final override val isStructuralAtom = false
-
-  val lift: Option[B] = if (exponent == 1.0) Some(base) else None
+  val lift: Option[B] = if (exponent == 1.0) Some(expBase) else None
 }
 
 object ExponentialMeasure
 {
-  def apply[B <: Measure[B]](base: B, exponent: Double, name: Option[String] = None): ExponentialMeasure[B] =
+  def apply[B <: Measure[B]](expBase: B, exponent: Double, name: Option[String] = None): ExponentialMeasure[B] =
   {
-    val params = (base, exponent, name)
+    val params = (expBase, exponent, name)
 
     new ExponentialMeasure[B]
     {
-      lazy val base: B = params._1
+      lazy val expBase: B = params._1
 
       override def exponent: Double = params._2
 
-      lazy val name = params._3.getOrElse(baseName)
+      val name = params._3.getOrElse(baseName)
 
-      override def composes(name: String, system: SystemOfUnits): ExponentialMeasure[B] = ExponentialMeasure(base, exponent, Some(name))
+      override def base: Option[(ExponentialMeasure[B], Double)] = None
+
+      override def composes(name: String, system: SystemOfUnits, multiple: Double): ExponentialMeasure[B] = ExponentialMeasure(expBase, exponent, Some(name))
 
       override def equals(obj: scala.Any): Boolean = obj match
       {
@@ -248,11 +271,17 @@ object ExponentialMeasure
 
       override def hashCode(): Int = 41 * base.hashCode() + exponent.hashCode()
 
+      private val productElements = Seq(base, exponent)
+
+      override def productElement(n: Int): Any = productElements(n)
+
+      val productArity: Int = productElements.size
+
+      override def canEqual(that: Any): Boolean = that.isInstanceOf[ExponentialMeasure[_]]
+
       override def toString = name
     }
   }
 
-  def unapply[B <: Measure[B]](em: ExponentialMeasure[B]): Option[(B, Double)] = Some((em.base, em.exponent))
-
-  def unapply[B <: Measure[B]](base: B, exponent: Double): Option[(B, Double)] = Some((base, exponent))
+  def unapply[B <: Measure[B]](em: ExponentialMeasure[B]): Option[(B, Double)] = Some((em.expBase, em.exponent))
 }

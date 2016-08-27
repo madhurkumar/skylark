@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Luminous flux measure.
- *
- * @author Araik Grigoryan
- */
-case class LuminousFluxMeasure(name: String, system: SystemOfUnits) extends Measure[LuminousFluxMeasure]
+  * Luminous flux measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class LuminousFluxMeasure(name: String, system: SystemOfUnits, base: Option[(LuminousFluxMeasure, Double)] = None) extends Measure[LuminousFluxMeasure]
 {
   type D = LuminousFluxDimension
 
   val dimension = LuminousFlux
 
-  override def composes(name: String, system: SystemOfUnits): LuminousFluxMeasure = LuminousFluxMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): LuminousFluxMeasure = LuminousFluxMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

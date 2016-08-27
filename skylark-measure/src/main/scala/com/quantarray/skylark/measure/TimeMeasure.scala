@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Time measure.
- *
- * @author Araik Grigoryan
- */
-case class TimeMeasure(name: String, system: SystemOfUnits) extends Measure[TimeMeasure]
+  * Time measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class TimeMeasure(name: String, system: SystemOfUnits, base: Option[(TimeMeasure, Double)] = None) extends Measure[TimeMeasure]
 {
   type D = TimeDimension
 
   val dimension = Time
 
-  override def composes(name: String, system: SystemOfUnits): TimeMeasure = TimeMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): TimeMeasure = TimeMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

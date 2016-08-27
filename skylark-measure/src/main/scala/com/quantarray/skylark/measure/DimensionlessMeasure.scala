@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,24 @@
 package com.quantarray.skylark.measure
 
 /**
- * Dimensionless measure.
- *
- * @author Araik Grigoryan
- */
-case class DimensionlessMeasure(name: String, system: SystemOfUnits, base: Double = 1) extends Measure[DimensionlessMeasure]
+  * Dimensionless measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class DimensionlessMeasure(name: String, system: SystemOfUnits, base: Option[(DimensionlessMeasure, Double)] = None) extends Measure[DimensionlessMeasure]
 {
   type D = NoDimension
 
   val dimension = Dimensionless
 
-  override def composes(name: String, system: SystemOfUnits): DimensionlessMeasure = DimensionlessMeasure(name, system, base)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): DimensionlessMeasure = DimensionlessMeasure(name, system, Some(this, multiple))
 
-  def composes(name: String, multiple: Double): DimensionlessMeasure = DimensionlessMeasure(name, system, base * multiple)
+  override def composes(name: String, multiple: Double): DimensionlessMeasure = DimensionlessMeasure(name, system, Some(this, multiple))
 
   override def toString = name
+}
+
+object DimensionlessMeasure
+{
+  def apply(name: String, system: SystemOfUnits, base: Double): DimensionlessMeasure = new DimensionlessMeasure(name, system, Some(Unit, base))
 }

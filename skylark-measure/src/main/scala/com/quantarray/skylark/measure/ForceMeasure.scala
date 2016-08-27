@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Force measure.
- *
- * @author Araik Grigoryan
- */
-case class ForceMeasure(name: String, system: SystemOfUnits) extends Measure[ForceMeasure]
+  * Force measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class ForceMeasure(name: String, system: SystemOfUnits, base: Option[(ForceMeasure, Double)] = None) extends Measure[ForceMeasure]
 {
   type D = ForceDimension
 
   val dimension = Force
 
-  override def composes(name: String, system: SystemOfUnits): ForceMeasure = ForceMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): ForceMeasure = ForceMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

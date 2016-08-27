@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Area measure.
- *
- * @author Araik Grigoryan
- */
-case class AreaMeasure(name: String, system: SystemOfUnits) extends Measure[AreaMeasure]
+  * Area measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class AreaMeasure(name: String, system: SystemOfUnits, base: Option[(AreaMeasure, Double)] = None) extends Measure[AreaMeasure]
 {
   type D = ExponentialDimension[LengthDimension]
 
   val dimension = ExponentialDimension(Length, 2)
 
-  override def composes(name: String, system: SystemOfUnits): AreaMeasure = AreaMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): AreaMeasure = AreaMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Temporal frequency measure.
- *
- * @author Araik Grigoryan
- */
-case class TemporalFrequencyMeasure(name: String, system: SystemOfUnits) extends Measure[TemporalFrequencyMeasure]
+  * Temporal frequency measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class TemporalFrequencyMeasure(name: String, system: SystemOfUnits, base: Option[(TemporalFrequencyMeasure, Double)] = None) extends Measure[TemporalFrequencyMeasure]
 {
   type D = TemporalFrequencyDimension
 
   val dimension = TemporalFrequency
 
-  override def composes(name: String, system: SystemOfUnits): TemporalFrequencyMeasure = TemporalFrequencyMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): TemporalFrequencyMeasure = TemporalFrequencyMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

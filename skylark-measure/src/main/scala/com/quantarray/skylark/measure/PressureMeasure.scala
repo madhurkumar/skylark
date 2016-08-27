@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Pressure measure.
- *
- * @author Araik Grigoryan
- */
-case class PressureMeasure(name: String, system: SystemOfUnits) extends Measure[ PressureMeasure]
+  * Pressure measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class PressureMeasure(name: String, system: SystemOfUnits, base: Option[(PressureMeasure, Double)] = None) extends Measure[PressureMeasure]
 {
   type D = PressureDimension
 
   val dimension = Pressure
 
-  override def composes(name: String, system: SystemOfUnits): PressureMeasure = PressureMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): PressureMeasure = PressureMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

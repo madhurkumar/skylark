@@ -19,7 +19,8 @@
 
 package com.quantarray.skylark.measure
 
-import com.quantarray.skylark.measure.conversion._
+import com.quantarray.skylark.measure.arithmetic.default._
+import com.quantarray.skylark.measure.conversion.default._
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -36,21 +37,34 @@ class MeasureSpec extends FlatSpec with Matchers
       kg.system should be(SI)
       kg.isStructuralAtom should be(right = true)
       kg.exponent should be(1.0)
-      kg / lb should be(UnitMeasure)
+      kg / lb should be(Unit)
       kg * s should be(ProductMeasure(kg, s))
       kg.inverse should be(ExponentialMeasure(kg, -1.0))
       kg to kg should be(Some(1))
       kg to lb should be(Some(2.204625))
       kg to g should be(Some(1000))
+      kg to cg should be(Some(100000))
+      kg to oz_metric should be(None) // Default conversion is not guaranteed to exist
     }
 
-  "mi/h" should "be convertible to m/s" in
+  "mi / h" should "be convertible to m/s" in
     {
       (mi / h) to (m / s) should be(Some(0.4470388888888889))
     }
 
   it should "be collectible" in
     {
-      (mi / h).collect({ case RatioMeasure(n, _) => n }) should be(mi)
+      (kg * m / (s ^ 2)).collect({ case untyped.RatioMeasure(untyped.ProductMeasure(x, _), _) => x }) should be(kg)
+    }
+
+  "(bbl ^ 2) / USD" should "be convertible to string" in
+    {
+      val measure = (bbl ^ 2) / USD
+      measure.toString should be("(bbl ^ 2.0) / USD")
+    }
+
+  "USD" should "be convertible to USC" in
+    {
+      USD to USC should be(Some(100))
     }
 }

@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Information measure.
- *
- * @author Araik Grigoryan
- */
-case class InformationMeasure(name: String, system: SystemOfUnits) extends Measure[InformationMeasure]
+  * Information measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class InformationMeasure(name: String, system: SystemOfUnits, base: Option[(InformationMeasure, Double)] = None) extends Measure[InformationMeasure]
 {
   type D = InformationDimension
 
   val dimension = Information
 
-  override def composes(name: String, system: SystemOfUnits): InformationMeasure = InformationMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): InformationMeasure = InformationMeasure(name, system, Some(this, multiple))
 
   override def toString = name
 }

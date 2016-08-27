@@ -26,12 +26,12 @@ import com.quantarray.skylark.measure._
   *
   * @author Araik Grigoryan
   */
-trait MassConverter extends SameTypeConverter[MassMeasure]
+trait MassConverter extends SameMeasureConverter[MassMeasure]
 {
-  protected override def convert: PartialFunction[(MassMeasure, MassMeasure), Double] =
+  protected override def convert(from: MassMeasure, to: MassMeasure): Option[Double] = (from, to) match
   {
-    case (`kg`, `lb`) => 2.204625
-    case (`kg`, `g`) => 1000.0
+    case (`kg`, `lb`) => Some(2.204625)
+    case _ => super.convert(from, to)
   }
 }
 

@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 package com.quantarray.skylark.measure
 
 /**
- * Currency.
- *
- * @author Araik Grigoryan
- */
+  * Currency.
+  *
+  * @author Araik Grigoryan
+  */
 case class Currency(name: String) extends Measure[Currency]
 {
   type D = MoneyDimension
@@ -32,7 +32,9 @@ case class Currency(name: String) extends Measure[Currency]
 
   val system = Monetary
 
-  override def composes(name: String, system: SystemOfUnits): Currency = Currency(name)
+  val base: Option[(Currency, Double)] = None
+
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): Currency = Currency(name)
 
   override def toString = name
 }

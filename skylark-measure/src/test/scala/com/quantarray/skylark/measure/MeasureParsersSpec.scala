@@ -19,6 +19,7 @@
 
 package com.quantarray.skylark.measure
 
+import com.quantarray.skylark.measure.arithmetic.default._
 import org.scalatest.{FlatSpec, Matchers}
 
 class MeasureParsersSpec extends FlatSpec with Matchers with MeasureParsers
@@ -28,7 +29,7 @@ class MeasureParsersSpec extends FlatSpec with Matchers with MeasureParsers
 
     override def read: MeasureReader = new MeasureReader
     {
-      override def apply(name: String): Option[UntypedMeasure] = name match
+      override def apply(name: String): Option[untyped.Measure] = name match
       {
         case "USD" => Some(USD)
         case "bbl" => Some(bbl)

@@ -2,7 +2,7 @@
  * Skylark
  * http://skylark.io
  *
- * Copyright 2012-2015 Quantarray, LLC
+ * Copyright 2012-2016 Quantarray, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 package com.quantarray.skylark.measure
 
 /**
- * Length measure.
- *
- * @author Araik Grigoryan
- */
-case class LengthMeasure(name: String, system: SystemOfUnits) extends Measure[LengthMeasure]
+  * Length measure.
+  *
+  * @author Araik Grigoryan
+  */
+case class LengthMeasure(name: String, system: SystemOfUnits, base: Option[(LengthMeasure, Double)] = None) extends Measure[LengthMeasure]
 {
   type D = LengthDimension
 
   val dimension = Length
 
-  override def composes(name: String, system: SystemOfUnits): LengthMeasure = LengthMeasure(name, system)
+  override def composes(name: String, system: SystemOfUnits, multiple: Double): LengthMeasure = LengthMeasure(name, system, Some((this, multiple)))
 
   override def toString = name
 }
