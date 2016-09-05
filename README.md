@@ -10,7 +10,7 @@ Skylark is a set of libraries for quantitative and financial computation.
 their surface but in the end lack the richness and versatility necessary to use in real enterprise applications.
 
 ```scala
-libraryDependencies += "com.quantarray" %% "skylark-measure" % "0.11.0"
+libraryDependencies += "com.quantarray" %% "skylark-measure" % "0.11.2"
 ```
 
 ```scala
@@ -45,6 +45,7 @@ kg to kg should be(Some(1))
 kg to lb should be(Some(2.204625))
 kg to g should be(Some(1000))
 kg to cg should be(Some(100000))
+kg to oz_metric should be(None) // Default conversion is not guaranteed to exist
 ```
 
 You can take existing units and compose more complex ones by multiplying, dividing, and exponentiating.
@@ -106,7 +107,7 @@ By default
 
 * `m1 * m2` returns `ProductMeasure(m1, m2)`;
 * `m1 / m2` returns `RatioMeasure(m1, m2)`;
-* `m ^ n` return `ExponentialMeasure(m, n`.
+* `m ^ n` return `ExponentialMeasure(m, n`).
 
 One can, however, override the return type by proving a custom implicit object or class that derives from one of the three `Can*` traits.
 
